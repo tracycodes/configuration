@@ -1,0 +1,32 @@
+[user]
+	email = tracy.livengood@oracle.com
+	name = tlivengood
+[core]
+	excludesfile = ~/.gitignore
+	autocrlf = input
+[alias]
+    st = status
+    ci = commit
+    cia = commit --amend
+    cial = commit --amend -C HEAD ; Commit, merging with previous commit
+    br = branch
+    co = checkout
+
+    d = diff
+    dr = diff --relative
+    drn = diff --relative --name-only
+
+    lg = log -p
+    lgt = log --oneline --all --graph --decorate --color
+
+    addu = add -u
+
+    ; Enable rebase on pull for the current git checkout
+    enableRebasePull = config branch.master.rebase true
+[push]
+	default = simple ; When pushing only push the current branch to the marked upstream branch
+[color]
+    ui = auto
+[branch]
+    autosetuprebase = always ; When cloning automatically setup rebase on pull
+
