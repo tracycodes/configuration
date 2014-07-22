@@ -11,6 +11,7 @@ import errno
 class Constants:
     HOME_DIRECTORY = os.path.expanduser('~')
     BIN_DIRECTORY = os.path.join(HOME_DIRECTORY, "bin/")
+    DROPBOX_DIRECTORY = os.path.join(HOME_DIRECTORY, "Dropbox/")
     CLONES_PATH = os.path.join(HOME_DIRECTORY, "code/clones/")
     START_TIME = time.time()
 
@@ -35,7 +36,7 @@ class CommandLine:
 
     @staticmethod
     def warn(message):
-        CommandLine.say(message, 'error')
+        CommandLine.say(message, 'warn')
 
     @staticmethod
     def error(message):
@@ -47,14 +48,19 @@ class CommandLine:
         sys.exit()
 
 class Installer:
-    def validate_system(self):
-        if not os.path.exists(Constants.HOME_DIRECTORY):
-            CommandLine.fatal("Home directory does not exist at `{0}`", Constants.HOME_DIRECTORY)
-        if not os.path.exists(Constants.CLONES_PATH):
-            CommandLine.fatal("Clone directory does not exist at `{0}`", Constants.CLONES_PATH)
-        if not os.path.exists(Constants.BIN_DIRECTORY):
-            CommandLine.fatal("Binary directory does not exist at `{0}`", Constants.BIN_DIRECTORY)
+    def initialize_system(self):
+        # TSL - Add functionality to setup a new structure on a system and clone down all of the frequently used repos
+        pass
 
+    def validate_system(self):
+        if not os.path.isdir(Constants.HOME_DIRECTORY):
+            CommandLine.fatal("Home directory does not exist at `{0}`", Constants.HOME_DIRECTORY)
+        if not os.path.isdir(Constants.CLONES_PATH):
+            CommandLine.fatal("Clone directory does not exist at `{0}`", Constants.CLONES_PATH)
+        if not os.path.isdir(Constants.BIN_DIRECTORY):
+            CommandLine.fatal("Binary directory does not exist at `{0}`", Constants.BIN_DIRECTORY)
+        if not os.path.isdir(Constants.DROPBOX_DIRECTORY):
+            CommandLine.fatal("Dropbox directory does not exist at `{0}`", Constants.DROPBOX_DIRECTORY)
 
     def install_all(self):
         installers = inspect.getmembers(Configurations)
@@ -75,17 +81,41 @@ class Configurations:
         tmuxinator_path = Constants.CLONES_PATH + "tmuxinator/completion/tmuxinator.bash"
 
         if os.path.isfile(tmuxinator_path):
-            CommandLine.say("Symlinking `{0}` to `{1}`".format(tmuxinator_path, Constants.HOME_DIRECTORY))
-            if not Helpers.safe_link(tmuxinator_path, Constants.BIN_DIRECTORY + "tmuxinator.bash"):
-                return False
+            CommandLine.say("Symlinking `{0}` to `{1}`".format(tmuxinator_path, Constants.BIN_DIRECTORY))
+            Helpers.safe_link(tmuxinator_path, Constants.BIN_DIRECTORY + "tmuxinator.bash")
         else:
             CommandLine.error("Unable to locate tmuxinator @ `{0}`. Tmuxinator was not installed.".format(tmuxinator_path))
+
+        tmuxinator_configuration = Constants.DROPBOX_DIRECTORY + "dotfiles/.tmuxinator"
+        symlink_path = os.path.join(Constants.HOME_DIRECTORY, ".tmuxinator")
+        if os.path.isdir(tmuxinator_configuration):
+            CommandLine.say("Symlinking `{0}` to `{1}`".format(tmuxinator_configuration, symlink_path))
+            Helpers.safe_link(tmuxinator_configuration, symlink_path)
+        else:
+            CommandLine.warn("No tmuxinator configurations exist")
 
         CommandLine.say("Symlink in place. Add `source ~/bin/tmuxinator.bash` to your .bashrc if it's not already included")
         return True
 
+    # Add dotfile symlinking
+    @staticmethod
+    def install_dotfiles():
+        pass
+
+    # Add osx defaults writes
+    @staticmethod
+    def install_osx_configuration():
+        pass
+
+    # Add key pairs
+    @staticmethod
+    def install_ssh():
+        pass
+
 def main():
-    Installer().install_all()
+    installer = Installer()
+    installer.validate_system()
+    installer.install_all()
 
 if __name__ == '__main__':
     main()
