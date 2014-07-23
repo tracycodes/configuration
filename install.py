@@ -78,14 +78,15 @@ class Installer:
 class Configurations:
     @staticmethod
     def install_tmuxinator():
-        tmuxinator_path = Constants.CLONES_PATH + "tmuxinator/completion/tmuxinator.bash"
-
-        if os.path.isfile(tmuxinator_path):
-            CommandLine.say("Symlinking `{0}` to `{1}`".format(tmuxinator_path, Constants.BIN_DIRECTORY))
-            Helpers.safe_link(tmuxinator_path, Constants.BIN_DIRECTORY + "tmuxinator.bash")
+        # Add tmuxinator completion
+        tmuxinator_completion = Constants.CLONES_PATH + "tmuxinator/completion/tmuxinator.bash"
+        if os.path.isfile(tmuxinator_completion):
+            CommandLine.say("Symlinking `{0}` to `{1}`".format(tmuxinator_completion, Constants.BIN_DIRECTORY))
+            Helpers.safe_link(tmuxinator_completion, Constants.BIN_DIRECTORY + "tmuxinator.bash")
         else:
-            CommandLine.error("Unable to locate tmuxinator @ `{0}`. Tmuxinator was not installed.".format(tmuxinator_path))
+            CommandLine.error("Unable to locate tmuxinator @ `{0}`. Tmuxinator was not installed.".format(tmuxinator_completion))
 
+        # Add tmuxinator configuration
         tmuxinator_configuration = Constants.DROPBOX_DIRECTORY + "dotfiles/.tmuxinator"
         symlink_path = os.path.join(Constants.HOME_DIRECTORY, ".tmuxinator")
         if os.path.isdir(tmuxinator_configuration):
@@ -95,22 +96,29 @@ class Configurations:
             CommandLine.warn("No tmuxinator configurations exist")
 
         CommandLine.say("Symlink in place. Add `source ~/bin/tmuxinator.bash` to your .bashrc if it's not already included")
+        # TSL -  Add a generate component that is automatically appended to the bashrc (?)
         return True
 
-    # Add dotfile symlinking
+    # TSL - Add dotfile symlinking
     @staticmethod
     def install_dotfiles():
         pass
 
-    # Add osx defaults writes
+    # TSL - Add osx defaults writes
     @staticmethod
     def install_osx_configuration():
         pass
 
-    # Add key pairs
+    # TSL - Add key pairs from secure host
     @staticmethod
     def install_ssh():
         pass
+
+    # TSL - install GNU tools
+
+    # TSL - install rvm
+
+    # TSL - install python, node, xcode tools
 
 def main():
     installer = Installer()
