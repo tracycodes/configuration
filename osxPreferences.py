@@ -57,8 +57,9 @@ def main():
         "Disable keyboard illumination after 5 minutes of inactivity":
             "defaults write com.apple.BezelServices kDimTime -int 300",
 
-        "Save screenshot in PNG":
-            'defaults write com.apple.screencapture type -string "png"',
+        # TSL - This inserts the string incorrectly adding literal "png" instead of just png
+        # "Save screenshot in PNG":
+        #     'defaults write com.apple.screencapture type -string \"png\"',
 
         "Disable shadows in screenshots":
             "defaults write com.apple.screencapture disable-shadow -bool true",
@@ -123,6 +124,8 @@ def main():
             "defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true",
             "defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true"
         ]
+
+        # TSL -- Add key repeat 
     }
 
     kill = [
