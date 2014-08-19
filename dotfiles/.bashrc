@@ -24,8 +24,8 @@ green() {
 
 username=$(blue '\u')
 export PROMPT_COMMAND='dir=$(python ~/code/personal/configuration/.truncate-pwd.py) && 
-                       branch=$(git branch 2> /dev/null | grep "*" | sed "s/* \(.*\)/(\1)/") &&
-                       export PS1="[$username:$dir $(green $branch)]$ "'
+                       branch="$(green $(git branch 2> /dev/null | grep "*" | sed "s/* \(.*\)/(\1)/")):" &&
+                       export PS1="[$username:$branch$dir]$ "'
 
 # Edit in Sublime
 export EDITOR='subl -w'
