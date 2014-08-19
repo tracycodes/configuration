@@ -9,6 +9,7 @@ import inspect
 import errno
 
 class Constants:
+    WORKING_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
     HOME_DIRECTORY = os.path.expanduser('~')
     BIN_DIRECTORY = os.path.join(HOME_DIRECTORY, "bin/")
     DROPBOX_DIRECTORY = os.path.join(HOME_DIRECTORY, "Dropbox/")
@@ -96,12 +97,15 @@ class Configurations:
             CommandLine.warn("No tmuxinator configurations exist")
 
         CommandLine.say("Symlink in place. Add `source ~/bin/tmuxinator.bash` to your .bashrc if it's not already included")
+
         # TSL -  Add a generate component that is automatically appended to the bashrc (?)
+
         return True
 
     # TSL - Add dotfile symlinking
     @staticmethod
     def install_dotfiles():
+        dotfiles = os.path.join(Constants.WORKING_DIRECTORY + "dotfiles")
         pass
 
     # TSL - Add osx defaults writes

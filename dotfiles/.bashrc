@@ -24,8 +24,9 @@ green() {
 
 username=$(blue '\u')
 export PROMPT_COMMAND='dir=$(python ~/code/personal/configuration/.truncate-pwd.py) && 
-                       branch="$(green $(git branch 2> /dev/null | grep "*" | sed "s/* \(.*\)/(\1)/")):" &&
-                       export PS1="[$username:$branch$dir]$ "'
+                       branch=$(git branch 2> /dev/null | grep "*" | sed "s/* \(.*\)/(\1)/") &&
+                       post_branch=$(if [[ "$branch" != "" ]]; then echo $(green $branch):; fi;) &&
+                       export PS1="[$username:$post_branch$dir]$ "'
 
 # Edit in Sublime
 export EDITOR='subl -w'
@@ -62,7 +63,7 @@ alias unmount="diskutil diskutil unmountDisk force"
 # Handle Colors
 export GREP_OPTIONS='--color=auto'
 eval "$(dircolors ~/.dircolors)" # depends on dircolor, sets env variables for LS
-alias ls='ls -CF --color=auto'	#Print a '/' at end of dirs, a '*' for binaries and a '@' for sym links
+alias ls='ls -CF --color=auto'  #Print a '/' at end of dirs, a '*' for binaries and a '@' for sym links
 alias ll='ls --color=auto -lh'
 
 # Let GRC colorize some useful tools
@@ -86,8 +87,8 @@ fi
 ## Convenient Functions
 
 filesize() {
-	ls -l $*
-	ls -lt $* | awk '{kb += $5} END {kb=kb/1024 ; printf(" TOTAL SIZE: %4.2f MB\n",kb/1024)}'
+  ls -l $*
+  ls -lt $* | awk '{kb += $5} END {kb=kb/1024 ; printf(" TOTAL SIZE: %4.2f MB\n",kb/1024)}'
 }
 
 # Find files
