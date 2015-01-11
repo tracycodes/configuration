@@ -105,8 +105,24 @@ class Configurations:
     # TSL - Add dotfile symlinking
     @staticmethod
     def install_dotfiles():
-        dotfiles = os.path.join(Constants.WORKING_DIRECTORY + "dotfiles")
-        pass
+        dotfiles = os.path.join(Constants.WORKING_DIRECTORY, "dotfiles")
+
+        symlinked_files = 0
+        for dotfile in os.listdir(dotfiles):
+            dotfile_path = os.path.join(dotfiles, dotfile)
+            if os.path.isfile(dotfile_path):
+                symlink_path = os.path.join(Constants.HOME_DIRECTORY, dotfile)
+                CommandLine.say("Symlinking `{0}` to `{1}`".format(dotfile_path, symlink_path))
+                if Helpers.safe_link(dotfile_path, symlink_path):
+                    symlinked_files += 1
+
+
+        if symlinked_files == 0:
+            CommandLine.say("All dotfiles already symlinked")
+        else:
+            CommandLine.say("Installed {0} dotfiles".format(symlinked_files))
+
+        return True
 
     # TSL - Add osx defaults writes
     @staticmethod
