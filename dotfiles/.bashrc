@@ -9,6 +9,10 @@ export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
 # Add Tmuxinator
 source ~/bin/tmuxinator.bash
 
+# No python bytecode
+export PYTHONPATH=~/code/work/hydra/core:~/code/work/hydra
+export PYTHONDONTWRITEBYTECODE=1
+
 # Add RVM to the path and as a bash function
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
@@ -23,7 +27,7 @@ green() {
 }
 
 username=$(blue '\u')
-export PROMPT_COMMAND='dir=$(python ~/code/personal/configuration/.truncate-pwd.py) && 
+export PROMPT_COMMAND='dir=$(python ~/code/personal/configuration/.truncate-pwd.py) &&
                        branch=$(git branch 2> /dev/null | grep "*" | sed "s/* \(.*\)/(\1)/") &&
                        post_branch=$(if [[ "$branch" != "" ]]; then echo $(green $branch):; fi;) &&
                        export PS1="[$username:$post_branch$dir]$ "'
@@ -63,7 +67,7 @@ alias unmount="diskutil diskutil unmountDisk force"
 # Handle Colors
 export GREP_OPTIONS='--color=auto'
 eval "$(dircolors ~/.dircolors)" # depends on dircolor, sets env variables for LS
-alias ls='ls -CF --color=auto'  #Print a '/' at end of dirs, a '*' for binaries and a '@' for sym links
+alias ls='ls -CF --color=auto'	#Print a '/' at end of dirs, a '*' for binaries and a '@' for sym links
 alias ll='ls --color=auto -lh'
 
 # Let GRC colorize some useful tools
@@ -87,8 +91,8 @@ fi
 ## Convenient Functions
 
 filesize() {
-  ls -l $*
-  ls -lt $* | awk '{kb += $5} END {kb=kb/1024 ; printf(" TOTAL SIZE: %4.2f MB\n",kb/1024)}'
+	ls -l $*
+	ls -lt $* | awk '{kb += $5} END {kb=kb/1024 ; printf(" TOTAL SIZE: %4.2f MB\n",kb/1024)}'
 }
 
 # Find files
@@ -97,13 +101,13 @@ f() {
 }
 
 # Find files and search them for content
-fg() {
-    find . -name $1 -exec grep -iHn $2 {} \;
-}
+# fg() {
+#     find . -name $1 -exec grep -iHn $2 {} \;
+# }
 
 # Find files and structure as a tree -- TSL Doesn't work for some reason
 ft() {
-    tree --prune -P $1 
+    tree --prune -P $1
 }
 
 # Find files and paths and search them for content
@@ -111,7 +115,7 @@ fwg() {
     find . -name $1 -and -wholename $2 -exec grep -iHn $3 {} \;
 }
 
-# Kill 
+# Kill
 k() {
     sudo kill `ps aux | grep $1 | awk '{print $2}'`
 }
@@ -119,4 +123,24 @@ k() {
 # Find files with a certain name and remove them (with prompt)
 fr() {
     find . -name $1 -exec rm -i {} \;
+}
+
+clean_pycache() {
+     sudo find . -name __pycache__ -exec rm -r {} +
+}
+
+services() {
+    lsof -iTCP
+}
+
+local_services() {
+    lsof -iTCP@localhost
+}
+
+process_services() {
+    lsof -p $1
+}
+
+check_port() {
+    lsof -i :$1
 }

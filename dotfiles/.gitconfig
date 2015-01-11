@@ -1,9 +1,10 @@
 [user]
-	email = tracy.livengood@oracle.com
-	name = tlivengood
+	email = tracy.livengood@gmail.com
+	name = Tracy Livengood
 [core]
 	excludesfile = ~/.gitignore
 	autocrlf = input
+	editor = vi
 [alias]
     st = status
     ci = commit
@@ -11,6 +12,8 @@
     cial = commit --amend -C HEAD ; Commit, merging with previous commit
     br = branch
     co = checkout
+    pul = pull
+    hist = log --pretty=format:\"%h %cd | %s%d [%an]\" --graph --date=short
 
     d = diff
     dr = diff --relative
@@ -18,15 +21,16 @@
 
     lg = log -p
     lgt = log --oneline --all --graph --decorate --color
+    l = log --oneline --max-count=10
 
     addu = add -u
 
     ; Enable rebase on pull for the current git checkout
-    enableRebasePull = config branch.master.rebase true
+    ;enableRebasePull = config branch.master.rebase true
 [push]
 	default = simple ; When pushing only push the current branch to the marked upstream branch
 [color]
     ui = auto
 [branch]
-    autosetuprebase = always ; When cloning automatically setup rebase on pull
+    ;autosetuprebase = always ; When cloning automatically setup rebase on pull
 
