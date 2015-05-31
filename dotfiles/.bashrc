@@ -27,7 +27,7 @@ green() {
 }
 
 username=$(blue '\u')
-export PROMPT_COMMAND='dir=$(python ~/code/personal/configuration/truncate-pwd.py) &&
+export PROMPT_COMMAND='dir=$(python ~/code/personal/configuration/truncate-pwd.py $PWD) &&
                        branch=$(git branch 2> /dev/null | grep "*" | sed "s/* \(.*\)/(\1)/") &&
                        post_branch=$(if [[ "$branch" != "" ]]; then echo $(green $branch):; fi;) &&
                        export PS1="[$username:$post_branch$dir]$ "'
