@@ -128,10 +128,18 @@ class Configurations:
     def install_osx_configuration():
         pass
 
-    # TSL - Add key pairs from secure host
     @staticmethod
     def install_ssh():
-        pass
+        ssh_keys = Constants.DROPBOX_DIRECTORY + "dotfiles/ssh"
+        symlink_path = os.path.join(Constants.HOME_DIRECTORY, ".ssh")
+        if os.path.isdir(ssh_keys):
+            CommandLine.say("Symlinking `{0}` to `{1}`".format(ssh_keys, symlink_path))
+            Helpers.safe_link(ssh_keys, symlink_path)
+        else:
+            CommandLine.warn("No ssh keys directory exists")
+            return False
+
+        return True
 
     # TSL - install GNU tools
 
