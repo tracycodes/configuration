@@ -27,7 +27,7 @@ green() {
 }
 
 username=$(blue '\u')
-export PROMPT_COMMAND='dir=$(python ~/code/personal/configuration/.truncate-pwd.py) &&
+export PROMPT_COMMAND='dir=$(python ~/code/personal/configuration/truncate-pwd.py) &&
                        branch=$(git branch 2> /dev/null | grep "*" | sed "s/* \(.*\)/(\1)/") &&
                        post_branch=$(if [[ "$branch" != "" ]]; then echo $(green $branch):; fi;) &&
                        export PS1="[$username:$post_branch$dir]$ "'
@@ -129,18 +129,19 @@ clean_pycache() {
      sudo find . -name __pycache__ -exec rm -r {} +
 }
 
+# All of these lsof commands use -P to prevent port number conversion to names
 services() {
-    lsof -iTCP
+    lsof -iTCP -P
 }
 
 local_services() {
-    lsof -iTCP@localhost
+    lsof -iTCP@localhost -P
 }
 
 process_services() {
-    lsof -p $1
+    lsof -p $1 -P
 }
 
 check_port() {
-    lsof -i :$1
+    lsof -i :$1 -P
 }
