@@ -1,4 +1,4 @@
-#! /usr/local/bin/python
+#! /usr/local/bin/python3
 
 # Install any tools that we need and move the dot files into the correct locations.
 
@@ -22,7 +22,7 @@ class Helpers:
         try:
             os.symlink(source, link_name)
             return True
-        except OSError, e:
+        except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
             CommandLine.warn("Symlink already exists. Attempted to link `{0}` to `{1}".format(source, link_name))
@@ -32,7 +32,7 @@ class CommandLine:
     @staticmethod
     def say(message, message_type='info'):
         # TSL - The timestamp is negative zero for some reason
-        print "[{0}] @ {1:.2f}: {2}".format(message_type, Constants.START_TIME - time.time(), message)
+        print("[{0}] @ {1:.2f}: {2}".format(message_type, Constants.START_TIME - time.time(), message))
 
 
     @staticmethod
@@ -88,21 +88,20 @@ class Configurations:
             CommandLine.error("Unable to locate tmuxinator @ `{0}`. Tmuxinator was not installed.".format(tmuxinator_completion))
 
         # Add tmuxinator configuration
-        tmuxinator_configuration = Constants.DROPBOX_DIRECTORY + "dotfiles/.tmuxinator"
+        tmuxinator_configuration = Constants.DROPBOX_DIRECTORY + "dotfiles/tmuxinator"
         symlink_path = os.path.join(Constants.HOME_DIRECTORY, ".tmuxinator")
         if os.path.isdir(tmuxinator_configuration):
             CommandLine.say("Symlinking `{0}` to `{1}`".format(tmuxinator_configuration, symlink_path))
             Helpers.safe_link(tmuxinator_configuration, symlink_path)
         else:
             CommandLine.warn("No tmuxinator configurations exist")
+            return False
 
         CommandLine.say("Symlink in place. Add `source ~/bin/tmuxinator.bash` to your .bashrc if it's not already included")
 
         # TSL -  Add a generate component that is automatically appended to the bashrc (?)
-
         return True
 
-    # TSL - Add dotfile symlinking
     @staticmethod
     def install_dotfiles():
         dotfiles = os.path.join(Constants.WORKING_DIRECTORY, "dotfiles")
