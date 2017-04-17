@@ -4,19 +4,30 @@ export PATH="/usr/local/bin:$PATH" # Force SSH + brew higher in the path
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" # override default path with gnutools
 export PATH="$HOME/bin:$PATH"
 export PATH="$PATH:$HOME/.rvm/bin"
+export PATH="$HOME/go/bin:$PATH"
 export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
 
-# Add Tmuxinator
-source ~/bin/tmuxinator.bash
-
 # No python bytecode
-export PYTHONPATH=~/code/work/hydra/core:~/code/work/hydra
 export PYTHONDONTWRITEBYTECODE=1
 
-# Add RVM to the path and as a bash function
-export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+# Annoyingly specify the default path for the CA Bundle. Resolves SSL Verify issues.
+export SSL_CERT_FILE=/usr/local/etc/openssl/certs/certs.pem
 
+# Always use go vendoring
+export GOPATH=$HOME/go
+
+# Add RVM to the path and as a bash function
+export PATH="$PATH:$HOME/.rvm/bin"
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
+
+# Add PYENV to the path
+export PATH="$(pyenv root)/bin:$PATH"
+eval "$(pyenv init -)"
+
+
+# Add NVM
+export NVM_DIR="$HOME/.nvm"
+[[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
 
 # Create a prompt with username + truncated directory + git branch
 blue() {
@@ -25,15 +36,19 @@ blue() {
 green() {
     echo "\[\033[1;36m\]$1\[\033[0m\]"
 }
+yellow() {
+    echo "\[\033[1;33m\]$1\[\033[0m\]"
+}
 
 username=$(blue '\u')
+current_time=$(yellow '\t')
 export PROMPT_COMMAND='dir=$(python ~/code/personal/configuration/truncate-pwd.py $PWD) &&
                        branch=$(git branch 2> /dev/null | grep "*" | sed "s/* \(.*\)/(\1)/") &&
                        post_branch=$(if [[ "$branch" != "" ]]; then echo $(green $branch):; fi;) &&
-                       export PS1="[$username:$post_branch$dir]$ "'
+                       export PS1="[$username:$post_branch$current_time:$dir]$ "'
 
 # Edit in Sublime
-export EDITOR='subl -w'
+export EDITOR='vi'
 
 #If ambiguous files are available, list them with each tab press (one instead of two)
 bind "set show-all-if-ambiguous on"
@@ -145,3 +160,8 @@ process_services() {
 check_port() {
     lsof -i :$1 -P
 }
+
+build_ctags() {
+    find . -not \( -ipath "./.git*" -o -ipath "./thumbprint/_build/*" -o -ipath "./thumbprint/node_modules/*" -o -ipath "./public/_assets/*" -o -ipath "./vendor*"  \) | ctags -L -
+}
+

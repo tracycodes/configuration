@@ -55,13 +55,13 @@ class Installer:
 
     def validate_system(self):
         if not os.path.isdir(Constants.HOME_DIRECTORY):
-            CommandLine.fatal("Home directory does not exist at `{0}`", Constants.HOME_DIRECTORY)
+            CommandLine.fatal("Home directory does not exist at `{0}`".format(Constants.HOME_DIRECTORY))
         if not os.path.isdir(Constants.CLONES_PATH):
-            CommandLine.fatal("Clone directory does not exist at `{0}`", Constants.CLONES_PATH)
+            CommandLine.fatal("Clone directory does not exist at `{0}`".format(Constants.CLONES_PATH))
         if not os.path.isdir(Constants.BIN_DIRECTORY):
-            CommandLine.fatal("Binary directory does not exist at `{0}`", Constants.BIN_DIRECTORY)
+            CommandLine.fatal("Binary directory does not exist at `{0}`".format(Constants.BIN_DIRECTORY))
         if not os.path.isdir(Constants.DROPBOX_DIRECTORY):
-            CommandLine.fatal("Dropbox directory does not exist at `{0}`", Constants.DROPBOX_DIRECTORY)
+            CommandLine.fatal("Dropbox directory does not exist at `{0}`".format(Constants.DROPBOX_DIRECTORY))
 
     def install_all(self):
         installers = inspect.getmembers(Configurations)
