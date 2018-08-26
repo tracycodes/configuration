@@ -123,9 +123,12 @@ def main():
             "defaults write com.apple.Safari IncludeDevelopMenu -bool true",
             "defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true",
             "defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true"
-        ]
+        ],
 
-        # TSL -- Add key repeat 
+        "Speed up time to key repeat and repeat rate": [
+            "defaults write -g InitialKeyRepeat -int 12",
+            "defaults write -g KeyRepeat -int 1",
+        ],
     }
 
     kill = [
