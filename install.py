@@ -150,7 +150,8 @@ class Configurations:
 def main():
     installer = Installer()
     installer.validate_system()
-    installer.install_all()
+    # installer.install_all()
+    Configurations.install_ssh()
 
 if __name__ == '__main__':
     main()
