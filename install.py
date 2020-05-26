@@ -3,18 +3,26 @@
 # Install any tools that we need and move the dot files into the correct locations.
 
 import os
-import time
+from datetime import datetime
 import sys
 import inspect
 import errno
+import requests
+import subprocess
 
 class Constants:
     WORKING_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
     HOME_DIRECTORY = os.path.expanduser('~')
-    BIN_DIRECTORY = os.path.join(HOME_DIRECTORY, "bin/")
     DROPBOX_DIRECTORY = os.path.join(HOME_DIRECTORY, "Dropbox/")
     CLONES_PATH = os.path.join(HOME_DIRECTORY, "code/clones/")
-    START_TIME = time.time()
+    VIM_PLUG_FILE = os.path.join(HOME_DIRECTORY, ".vim/autoload/plug.vim")
+    START_TIME = datetime.now()
+    VIM_PLUG_URL = "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+    VIM_COLOR_REPO = "git@github.com:altercation/vim-colors-solarized.git"
+    VIM_COLOR_INSTALL_PATH = os.path.join(HOME_DIRECTORY, ".vim/colors/")
+    VIM_COLOR_FILE = 'solarized.vim'
+    VIM_COLOR_CLONE_PATH = os.path.join(CLONES_PATH, 'vim-colors-solarized/colors')
+    SSH_KEY_PATH = os.path.join(HOME_DIRECTORY, ".ssh/macbook-work")
 
 class Helpers:
     @staticmethod
@@ -28,12 +36,11 @@ class Helpers:
             CommandLine.warn("Symlink already exists. Attempted to link `{0}` to `{1}".format(source, link_name))
             return False
 
+
 class CommandLine:
     @staticmethod
     def say(message, message_type='info'):
-        # TSL - The timestamp is negative zero for some reason
-        print("[{0}] @ {1:.2f}: {2}".format(message_type, Constants.START_TIME - time.time(), message))
-
+        print("[{0}] {1}: {2}".format(message_type, datetime.now(), message))
 
     @staticmethod
     def warn(message):
@@ -48,25 +55,19 @@ class CommandLine:
         CommandLine.say(message, 'fatal')
         sys.exit()
 
-class Installer:
-    def initialize_system(self):
-        # TSL - Add functionality to setup a new structure on a system and clone down all of the frequently used repos
-        pass
 
+class Installer:
     def validate_system(self):
         if not os.path.isdir(Constants.HOME_DIRECTORY):
             CommandLine.fatal("Home directory does not exist at `{0}`".format(Constants.HOME_DIRECTORY))
         if not os.path.isdir(Constants.CLONES_PATH):
             CommandLine.fatal("Clone directory does not exist at `{0}`".format(Constants.CLONES_PATH))
-        if not os.path.isdir(Constants.BIN_DIRECTORY):
-            CommandLine.fatal("Binary directory does not exist at `{0}`".format(Constants.BIN_DIRECTORY))
         if not os.path.isdir(Constants.DROPBOX_DIRECTORY):
             CommandLine.fatal("Dropbox directory does not exist at `{0}`".format(Constants.DROPBOX_DIRECTORY))
 
     def install_all(self):
         installers = inspect.getmembers(Configurations)
 
-        # Find and run all installer methods
         for installer in installers:
             installer_method = installer[0]
             if installer_method.find('install_') == 0:
@@ -77,31 +78,6 @@ class Installer:
                     CommandLine.warn('Installer failed to complete.')
 
 class Configurations:
-    @staticmethod
-    def install_tmuxinator():
-        # Add tmuxinator completion
-        tmuxinator_completion = Constants.CLONES_PATH + "tmuxinator/completion/tmuxinator.bash"
-        if os.path.isfile(tmuxinator_completion):
-            CommandLine.say("Symlinking `{0}` to `{1}`".format(tmuxinator_completion, Constants.BIN_DIRECTORY))
-            Helpers.safe_link(tmuxinator_completion, Constants.BIN_DIRECTORY + "tmuxinator.bash")
-        else:
-            CommandLine.error("Unable to locate tmuxinator @ `{0}`. Tmuxinator was not installed.".format(tmuxinator_completion))
-
-        # Add tmuxinator configuration
-        tmuxinator_configuration = Constants.DROPBOX_DIRECTORY + "dotfiles/tmuxinator"
-        symlink_path = os.path.join(Constants.HOME_DIRECTORY, ".tmuxinator")
-        if os.path.isdir(tmuxinator_configuration):
-            CommandLine.say("Symlinking `{0}` to `{1}`".format(tmuxinator_configuration, symlink_path))
-            Helpers.safe_link(tmuxinator_configuration, symlink_path)
-        else:
-            CommandLine.warn("No tmuxinator configurations exist")
-            return False
-
-        CommandLine.say("Symlink in place. Add `source ~/bin/tmuxinator.bash` to your .bashrc if it's not already included")
-
-        # TSL -  Add a generate component that is automatically appended to the bashrc (?)
-        return True
-
     @staticmethod
     def install_dotfiles():
         dotfiles = os.path.join(Constants.WORKING_DIRECTORY, "dotfiles")
@@ -141,6 +117,53 @@ class Configurations:
 
         return True
 
+
+    @staticmethod
+    def install_vim():
+        # Install vim.plug
+        if not os.path.isfile(Constants.VIM_PLUG_FILE):
+            plug_script = requests.get(Constants.VIM_PLUG_URL)
+            with open(Constants.VIM_PLUG_FILE, "w+") as fd:
+                written = fd.write(plug_script.text)
+                CommandLine.say("Wrote vim plug. Bytes written: {}".format(written))
+        else:
+            CommandLine.say("Vim plug already installed")
+
+        # Clone colors repository
+        colors_path = os.path.join(Constants.CLONES_PATH, 'vim-colors-solarized')
+        if not os.path.isdir(colors_path):
+            CommandLine.say("Cloning colors repository")
+            ssh_create_agent = ['ssh-agent']
+            ssh_add_key = ['ssh-add {}'.format(Constants.SSH_KEY_PATH)]
+            clone_colors_repo = ['git clone {} {}'.format(Constants.VIM_COLOR_REPO, colors_path)]
+
+            for i in [ssh_create_agent, ssh_add_key, clone_colors_repo]:
+                process = subprocess.Popen(i,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE,
+                                     shell=True)
+
+                CommandLine.say("Running Subprocess command: {}".format(i))
+                stdout, stderr = process.communicate()
+                if len(stdout):
+                    CommandLine.say("Subprocess: stdout - {}".format(stdout))
+                if len(stderr):
+                    CommandLine.say("Subprocess: stderr - {}".format(stderr))
+                if process.returncode > 0:
+                    CommandLine.fatal("Error running process, code: {}".format(process.returncode))
+        else:
+            CommandLine.say("Colors repository already exists")
+
+        if not os.path.isdir(Constants.VIM_COLOR_INSTALL_PATH):
+            os.mkdir(Constants.VIM_COLOR_INSTALL_PATH)
+
+        # Install links
+        vim_color_link = os.path.join(Constants.VIM_COLOR_INSTALL_PATH, Constants.VIM_COLOR_FILE)
+        vim_color_clone_file = os.path.join(Constants.VIM_COLOR_CLONE_PATH, Constants.VIM_COLOR_FILE)
+        CommandLine.say("Symlinking `{0}` to `{1}`".format(vim_color_clone_file, vim_color_link))
+        Helpers.safe_link(vim_color_clone_file, vim_color_link)
+
+
     # TSL - install GNU tools
 
     # TSL - install rvm
@@ -152,6 +175,8 @@ def main():
     installer.validate_system()
     # installer.install_all()
     Configurations.install_ssh()
+    Configurations.install_dotfiles()
+    Configurations.install_vim()
 
 if __name__ == '__main__':
     main()
